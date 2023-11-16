@@ -23,7 +23,7 @@ class GenresSerializer(serializers.ModelSerializer):
 class TitlesSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Titles"""
     genre = GenresSerializer(read_only=True)
-    categories = GenresSerializer(many=True, read_only=True)
+    categories = CategoriesSerializer(many=True, read_only=True)
 
     class Meta:
         fields = ('id', 'name', 'year', 'description', 'genre', 'categories')

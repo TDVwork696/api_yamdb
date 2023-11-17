@@ -34,7 +34,7 @@ class TitlesSerializer(serializers.ModelSerializer):
         model = Titles
 
     def validate_year(self, value):
-        """Проверяем что бы пользователь не подписывался на себя"""
+        """Проверяем год произведения"""
         if value < 1970 or value > 2023:
             raise serializers.ValidationError(
                 'Год должен быть не раньше 1970 и не позже 2023'

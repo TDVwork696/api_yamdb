@@ -1,4 +1,4 @@
-from django.core.mail import EmailMessage
+<<<<<< users_and_authsfrom django.core.mail import EmailMessage
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
@@ -12,14 +12,19 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.generic import CreateListDeleteViewSet
-from reviews.models import Categories, Genres, Titles
+from reviews.models import Categories, Genres, Titles, Reviews, Comments
 from api.permissions import (IsAdminOrStaff)
 from api.serializers import (CategoriesSerializer, GenresSerializer,
                              TitlesSerializer, TokenSerializer,
                              NotAdminSerializer, SignUpSerializer,
-                             UsersSerializer)
+                             UsersSerializer, ReviewsSerializer,
+                             CommentsSerializer)
 from api_yamdb.settings import PROJECT_EMAIL
 from user.models import (CustomUser)
+
+
+
+from .permissions import OwnerOrReadOnly
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):
@@ -125,3 +130,41 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ReviewsViewSet(CreateListDeleteViewSet):
+    """Класс для работы с Отзывами"""
+    queryset = Reviews.objects.all()
+    serializer_class = ReviewsSerializer
+    pagination_class = LimitOffsetPagination
+    permission_classes = OwnerOrReadOnly
+
+    def get_title_id(self):
+        return get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+
+    def perform_create(self, serializer):
+        title = self.get_title_id()
+        serializer.save(author=self.request.user, title=title)
+
+    def get_queryset(self):
+        title = self.get_title_id()
+        return title.comments.all()
+
+
+class CommentsViewSet(CreateListDeleteViewSet):
+    """Класс для работы с Комментариями"""
+    queryset = Comments.objects.all()
+    serializer_class = CommentsSerializer
+    pagination_class = LimitOffsetPagination
+    permission_classes = OwnerOrReadOnly
+
+    def get_reviews_id(self):
+        return get_object_or_404(Reviews, pk=self.kwargs.get('reviews_id'))
+
+    def perform_create(self, serializer):
+        reviews = self.get_reviews_id()
+        serializer.save(author=self.request.user, reviews=reviews)
+
+    def get_queryset(self):
+        reviews = self.get_reviews_id()
+        return reviews.comments.all()

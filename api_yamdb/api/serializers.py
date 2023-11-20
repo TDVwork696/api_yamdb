@@ -1,8 +1,14 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 # from rest_framework.relations import SlugRelatedField
 
-from reviews.models import Categories, Genres, Titles, Reviews, Comments
+
+from reviews.models import Categories, Genres, Titles
+from user.models import CustomUser
+
+from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
+
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -43,6 +49,72 @@ class TitlesSerializer(serializers.ModelSerializer):
         return value
 
 
+
+class TokenSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        required=True)
+    confirmation_code = serializers.CharField(
+        required=True)
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'username',
+            'confirmation_code'
+        )
+
+
+class UsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+
+
+class NotAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = (
+            'username',
+            'email',
+            'first_name',
+            'last_name',
+            'bio',
+            'role'
+        )
+        read_only_fields = ('role',)
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(
+        max_length=USER_NAMES_LENGTH,
+        required=True,
+        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+    )
+
+    email = serializers.EmailField(
+        max_length=USER_EMAIL_LENGTH,
+        required=True,
+        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+    )
+
+    def validate_username(self, username):
+        if username == 'me':
+            raise serializers.ValidationError(
+                "Нельзя назвать пользователя 'me'."
+            )
+        return username
+
+    class Meta:
+        model = CustomUser
+        fields = ('email', 'username')
+
 class ReviewsSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Reviews"""
     score = serializers.IntegerField(min_value=1, max_value=10)
@@ -79,3 +151,4 @@ class CommentsSerializer(serializers.ModelSerializer):
         model = Comments
         fields = (('id', 'text', 'author', 'created'))
         read_only_fields = ('pub_date',)
+

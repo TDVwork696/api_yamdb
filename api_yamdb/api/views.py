@@ -1,4 +1,4 @@
-<<<<<< users_and_authsfrom django.core.mail import EmailMessage
+from django.core.mail import EmailMessage
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 

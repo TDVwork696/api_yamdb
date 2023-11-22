@@ -1,5 +1,6 @@
 from django.core.mail import EmailMessage
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status, viewsets

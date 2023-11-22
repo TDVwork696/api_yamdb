@@ -1,5 +1,5 @@
-<<<<<< users_and_authsfrom django.core.mail import EmailMessage
-from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status, viewsets
@@ -18,13 +18,12 @@ from api.serializers import (CategoriesSerializer, GenresSerializer,
                              TitlesSerializer, TokenSerializer,
                              NotAdminSerializer, SignUpSerializer,
                              UsersSerializer, ReviewsSerializer,
-                             CommentsSerializer)
+                             CommentsSerializer, TitlesWriteSerializer)
+
 from api_yamdb.settings import PROJECT_EMAIL
 from user.models import (CustomUser)
 
-
-
-from .permissions import OwnerOrReadOnly
+from .permissions import IsAuthorOrModeratorOrAdmin
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):
@@ -32,6 +31,10 @@ class CategoriesViewSet(CreateListDeleteViewSet):
     queryset = Categories.objects.all()
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    filterset_fields = ('name',)
+    search_fields = ('name',)
     lookup_field = 'slug'
 
 
@@ -40,6 +43,10 @@ class GenresViewSet(CreateListDeleteViewSet):
     queryset = Genres.objects.all()
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    filterset_fields = ('slug',)
+    search_fields = ('name',)
     lookup_field = 'slug'
 
 
@@ -48,14 +55,19 @@ class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Titles.objects.all()
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
+    filter_backends = (DjangoFilterBackend,)
+    permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    filterset_fields = (
+        'name',
+        'year',
+        'genre__slug',
+        'category__slug'
+    )
 
-    def perform_update(self, serializer):
-        """Проверяем кто делает запросы PUT и PATCH.
-        Если это не автор, то возвращаем ошибку что доступ только у автора """
-        # пока вставил простую проверку на автора. Но нужно будет доработать.
-        if self.request.user != serializer.instance.author:
-            raise PermissionDenied("Изменения доступны только ?")
-        return super().perform_update(serializer)
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return TitlesWriteSerializer
+        return TitlesSerializer
 
 
 class APIGetToken(APIView):
@@ -137,7 +149,7 @@ class ReviewsViewSet(CreateListDeleteViewSet):
     queryset = Reviews.objects.all()
     serializer_class = ReviewsSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = OwnerOrReadOnly
+    permission_classes = (IsAuthorOrModeratorOrAdmin,)
 
     def get_title_id(self):
         return get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
@@ -148,7 +160,7 @@ class ReviewsViewSet(CreateListDeleteViewSet):
 
     def get_queryset(self):
         title = self.get_title_id()
-        return title.comments.all()
+        return title.reviews.all()
 
 
 class CommentsViewSet(CreateListDeleteViewSet):
@@ -156,7 +168,7 @@ class CommentsViewSet(CreateListDeleteViewSet):
     queryset = Comments.objects.all()
     serializer_class = CommentsSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = OwnerOrReadOnly
+    permission_classes = (IsAuthorOrModeratorOrAdmin,)
 
     def get_reviews_id(self):
         return get_object_or_404(Reviews, pk=self.kwargs.get('reviews_id'))

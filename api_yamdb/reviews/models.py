@@ -24,7 +24,7 @@ class Genres(models.Model):
     slug = models.SlugField(unique=True, max_length=50)
 
     def __str__(self):
-        return self.name
+        return self.slug
 
     class Meta:
         ordering = ("name",)
@@ -35,10 +35,15 @@ class Titles(models.Model):
     name = models.CharField(max_length=256)
     year = models.IntegerField('Год')
     description = models.TextField(null=True, blank=True)
-    genre = models.ForeignKey(
-        Genres, on_delete=models.PROTECT, related_name='genre')
-    categories = models.ManyToManyField(
-        Categories, related_name='categories', null=False)
+    genre = models.ManyToManyField(
+        Genres, related_name='genre', blank=True)
+    category = models.ForeignKey(
+        Categories,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='category'
+    )
 
     def __str__(self):
         return self.name
@@ -78,7 +83,7 @@ class Comments(models.Model):
     """Модель Комментариев"""
     text = models.TextField()
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments'
+        User, on_delete=models.CASCADE, related_name='author'
     )
     created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True

@@ -9,6 +9,10 @@ class Categories(models.Model):
     """Модель Категорий"""
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='categories',
+        null=True, blank=True
+    )
 
     def __str__(self):
         return self.name
@@ -22,6 +26,10 @@ class Genres(models.Model):
     """Модель Жанров"""
     name = models.CharField(max_length=256)
     slug = models.SlugField(unique=True, max_length=50)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='genres',
+        null=True, blank=True
+    )
 
     def __str__(self):
         return self.slug
@@ -43,6 +51,10 @@ class Titles(models.Model):
         null=True,
         blank=True,
         related_name='category'
+    )
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='titles',
+        null=True, blank=True
     )
 
     def __str__(self):

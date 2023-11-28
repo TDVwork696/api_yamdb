@@ -1,6 +1,5 @@
 from django.core.mail import EmailMessage
 from django_filters.rest_framework import DjangoFilterBackend
-from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status, viewsets
@@ -103,9 +102,23 @@ class APISignup(APIView):
         email.send()
 
     def post(self, request):
-        serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+
+        email = request.data.get('email')
+        username = request.data.get('username')
+
+        users_set = CustomUser.objects.filter(
+            username=username,
+            email=email
+        )
+
+        if len(users_set) == 0:
+            serializer = SignUpSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
+        else:
+            user = users_set[0]
+            serializer = SignUpSerializer(user)
+
         email_body = (
             f'Добро пожаловать, {user.username}!'
             f'Доступ к API по коду: {user.confirmation_code}'
@@ -127,6 +140,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(
         methods=['GET', 'PATCH'],

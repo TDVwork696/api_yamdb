@@ -38,7 +38,7 @@ class Genres(models.Model):
         ordering = ("name",)
 
 
-class Titles(models.Model):
+class Title(models.Model):
     """Модель Произведений"""
     name = models.CharField(max_length=256)
     year = models.IntegerField('Год')
@@ -64,17 +64,17 @@ class Titles(models.Model):
         ordering = ("name",)
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     """Модель Отзывов"""
     text = models.TextField()
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews'
     )
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True
     )
     title = models.ForeignKey(
-        Titles, on_delete=models.CASCADE, related_name='reviews'
+        Title, on_delete=models.CASCADE, related_name='reviews'
     )
     score = models.PositiveIntegerField(
         validators=[MinValueValidator(1, message='Оценка должна быть > 0!'),
@@ -82,13 +82,11 @@ class Reviews(models.Model):
     )
 
     def __str__(self):
-        return '"{}" and "{}"to title "{}" by author "{}"'.format(self.score,
-                                                                  self.text,
-                                                                  self.title,
-                                                                  self.author)
+        return self.text
 
     class Meta:
-        ordering = ("-created",)
+        unique_together = ('title', 'author',)
+        ordering = ("-pub_date",)
 
 
 class Comments(models.Model):
@@ -97,15 +95,15 @@ class Comments(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='author'
     )
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True
     )
     review = models.ForeignKey(
-        Reviews, on_delete=models.CASCADE, related_name='comments'
+        Review, on_delete=models.CASCADE, related_name='comments'
     )
 
     def __str__(self):
         return self.text
 
     class Meta:
-        ordering = ("-created",)
+        ordering = ("-pub_date",)

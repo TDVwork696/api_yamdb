@@ -4,7 +4,7 @@ from django.urls import include, path
 
 from api.views import (APISignup, APIGetToken, CategoriesViewSet,
                        GenresViewSet, TitlesViewSet, UsersViewSet,
-                      ReviewsViewSet, CommentsViewSet)
+                       ReviewsViewSet, CommentsViewSet)
 
 router_api_v1 = routers.DefaultRouter()
 router_api_v1.register(r'categories', CategoriesViewSet, basename='categories')

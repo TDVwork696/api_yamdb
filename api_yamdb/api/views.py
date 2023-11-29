@@ -1,6 +1,5 @@
 from django.core.mail import EmailMessage
 from django_filters.rest_framework import DjangoFilterBackend
-from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status, viewsets
@@ -13,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.generic import CreateListDeleteViewSet
-from reviews.models import Categories, Genres, Titles, Reviews, Comments
+from reviews.models import Categories, Genres, Title, Review, Comments
 from api.permissions import (IsAdminOrStaff)
 from api.serializers import (CategoriesSerializer, GenresSerializer,
                              TitlesSerializer, TokenSerializer,
@@ -53,7 +52,7 @@ class GenresViewSet(CreateListDeleteViewSet):
 
 class TitlesViewSet(viewsets.ModelViewSet):
     """Класс для работы с Произведениями."""
-    queryset = Titles.objects.all()
+    queryset = Title.objects.all()
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
@@ -147,13 +146,13 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 class ReviewsViewSet(CreateListDeleteViewSet):
     """Класс для работы с Отзывами"""
-    queryset = Reviews.objects.all()
+    queryset = Review.objects.all()
     serializer_class = ReviewsSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthorOrModeratorOrAdmin,)
 
     def get_title_id(self):
-        return get_object_or_404(Titles, pk=self.kwargs.get('title_id'))
+        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 
     def perform_create(self, serializer):
         title = self.get_title_id()
@@ -172,7 +171,7 @@ class CommentsViewSet(CreateListDeleteViewSet):
     permission_classes = (IsAuthorOrModeratorOrAdmin,)
 
     def get_reviews_id(self):
-        return get_object_or_404(Reviews, pk=self.kwargs.get('reviews_id'))
+        return get_object_or_404(Review, pk=self.kwargs.get('reviews_id'))
 
     def perform_create(self, serializer):
         reviews = self.get_reviews_id()

@@ -3,11 +3,10 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import Categories, Genres, Titles, Reviews, Comments
+from reviews.models import Categories, Genres, Title, Review, Comments
 from user.models import CustomUser
 
 from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
-
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -31,7 +30,7 @@ class GenresSerializer(serializers.ModelSerializer):
 
 
 class TitlesWriteSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Titles"""
+    """Сериализатор для модели Title"""
     genre = serializers.SlugRelatedField(
         queryset=Genres.objects.all(),
         slug_field='slug',
@@ -44,7 +43,7 @@ class TitlesWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
-        model = Titles
+        model = Title
 
     def validate_year(self, value):
         """Проверяем год произведения"""
@@ -54,14 +53,15 @@ class TitlesWriteSerializer(serializers.ModelSerializer):
             )
         return value
 
+
 class TitlesSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Titles"""
+    """Сериализатор для модели Title"""
     genre = GenresSerializer(many=True)
     category = CategoriesSerializer()
 
     class Meta:
         fields = ('id', 'name', 'year', 'description', 'genre', 'category')
-        model = Titles
+        model = Title
 
 
 class TokenSerializer(serializers.ModelSerializer):
@@ -129,8 +129,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('email', 'username')
 
+
 class ReviewsSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Reviews"""
+    """Сериализатор для модели Review"""
     score = serializers.IntegerField(min_value=1, max_value=10)
     author = serializers.SlugRelatedField(
         read_only=True,
@@ -138,24 +139,22 @@ class ReviewsSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
+    def validate(self, data):
+        request = self.context['request']
+        author = request.user
+        title_id = self.context['view'].kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        if request.method == 'POST':
+            if Review.objects.filter(title=title, author=author).exists():
+                raise serializers.ValidationError(
+                    'Вы не можете добавить более'
+                    'одного отзыва на произведение')
+        return data
+
     class Meta:
-        model = Reviews
+        model = Review
         fields = ('id', 'text', 'author', 'score', 'created')
         read_only_fields = ('pub_date',)
-
-    def validate_resending(self, data):
-        if self.context['request'].method != 'POST':
-            return data
-        title = get_object_or_404(
-            Titles,
-            id=self.context['request'].parser_context['kwargs']['title_id']
-        )
-        if Reviews.objects.filter(
-            author=self.context['request'].user,
-            title=title
-        ).exists():
-            raise serializers.ValidationError('Отзыв уже оставлен')
-        return data
 
 
 class CommentsSerializer(serializers.ModelSerializer):

@@ -70,7 +70,7 @@ class Review(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='reviews'
     )
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True
     )
     title = models.ForeignKey(
@@ -85,7 +85,8 @@ class Review(models.Model):
         return self.text
 
     class Meta:
-        ordering = ("-created",)
+        unique_together = ('title', 'author',)
+        ordering = ("-pub_date",)
 
 
 class Comments(models.Model):
@@ -94,7 +95,7 @@ class Comments(models.Model):
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='author'
     )
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True
     )
     review = models.ForeignKey(
@@ -105,4 +106,4 @@ class Comments(models.Model):
         return self.text
 
     class Meta:
-        ordering = ("-created",)
+        ordering = ("-pub_date",)

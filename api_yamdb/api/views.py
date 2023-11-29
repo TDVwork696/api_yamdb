@@ -11,15 +11,19 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django_filters import rest_framework as filters
 
 from api.generic import CreateListDeleteViewSet
-from reviews.models import Categories, Genres, Titles, Reviews, Comments
-from api.permissions import (IsAdminOrStaff)
+
+from api.permissions import (IsAdminOrStaff, IsAdmin)
 from api.serializers import (CategoriesSerializer, GenresSerializer,
                              TitlesSerializer, TokenSerializer,
                              NotAdminSerializer, SignUpSerializer,
                              UsersSerializer, ReviewsSerializer,
                              CommentsSerializer, TitlesWriteSerializer)
+
+from .filters import FilterSlug
+from reviews.models import Categories, Genres, Titles, Reviews, Comments
 
 from api_yamdb.settings import PROJECT_EMAIL
 from user.models import (CustomUser)
@@ -33,7 +37,7 @@ class CategoriesViewSet(CreateListDeleteViewSet):
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    #permission_classes = (IsAuthorOrModeratorOrAdmin,)
     filterset_fields = ('name',)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -45,7 +49,7 @@ class GenresViewSet(CreateListDeleteViewSet):
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    #permission_classes = (IsAuthorOrModeratorOrAdmin,)
     filterset_fields = ('slug',)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -57,13 +61,15 @@ class TitlesViewSet(viewsets.ModelViewSet):
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
-    permission_classes = (IsAuthorOrModeratorOrAdmin,)
-    filterset_fields = (
-        'name',
-        'year',
-        'genre__slug',
-        'category__slug'
-    )
+    #permission_classes = (IsAdmin,)
+    http_method_names = ['get', 'post', 'patch', 'delete']
+    filter_class = FilterSlug
+    #filterset_fields = (
+    #    'name',
+    #    'year',
+    #    'genre__slug',
+    #    'category__slug'
+    #)
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:

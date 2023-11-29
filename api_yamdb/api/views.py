@@ -23,12 +23,12 @@ from api.serializers import (CategoriesSerializer, GenresSerializer,
                              CommentsSerializer, TitlesWriteSerializer)
 
 from .filters import FilterSlug
-from reviews.models import Categories, Genres, Titles, Reviews, Comments
+from reviews.models import Categories, Genres, Title, Review, Comments
 
 from api_yamdb.settings import PROJECT_EMAIL
 from user.models import (CustomUser)
 
-from .permissions import IsAuthorOrModeratorOrAdmin
+from .permissions import IsAuthorOrModeratorOrAdmin, IsAdminOrReadOnly
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):
@@ -37,7 +37,7 @@ class CategoriesViewSet(CreateListDeleteViewSet):
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    #permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    permission_classes = (IsAdminOrReadOnly,)
     filterset_fields = ('name',)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -49,7 +49,7 @@ class GenresViewSet(CreateListDeleteViewSet):
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    #permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    permission_classes = (IsAdminOrReadOnly,)
     filterset_fields = ('slug',)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -61,15 +61,10 @@ class TitlesViewSet(viewsets.ModelViewSet):
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
-    #permission_classes = (IsAdmin,)
+    permission_classes = (IsAdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
     filter_class = FilterSlug
-    #filterset_fields = (
-    #    'name',
-    #    'year',
-    #    'genre__slug',
-    #    'category__slug'
-    #)
+
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:

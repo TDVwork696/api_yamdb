@@ -1,5 +1,6 @@
 from django.core.mail import EmailMessage
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 
 from rest_framework import status, viewsets
@@ -52,7 +53,7 @@ class GenresViewSet(CreateListDeleteViewSet):
 
 class TitlesViewSet(viewsets.ModelViewSet):
     """Класс для работы с Произведениями."""
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(rating=Avg('reviews__score'))
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)

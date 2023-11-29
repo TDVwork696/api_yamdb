@@ -1,5 +1,8 @@
 from datetime import datetime
+import re
+
 from django.shortcuts import get_object_or_404
+
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
@@ -7,7 +10,6 @@ from reviews.models import Categories, Genres, Titles, Reviews, Comments
 from user.models import CustomUser
 
 from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
-
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -53,6 +55,7 @@ class TitlesWriteSerializer(serializers.ModelSerializer):
                 'Год должен быть текущий или меньше'
             )
         return value
+
 
 class TitlesSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Titles"""
@@ -123,11 +126,16 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Нельзя назвать пользователя 'me'."
             )
+        if re.search(r'^[a-zA-Z][a-zA-Z0-9-_\.]{1,20}$', username) is None:
+            raise serializers.ValidationError(
+                f'Имя пользователя содержит недопустимые символы {username}.'
+            )
         return username
 
     class Meta:
         model = CustomUser
         fields = ('email', 'username')
+
 
 class ReviewsSerializer(serializers.ModelSerializer):
     """Сериализатор для модели Reviews"""

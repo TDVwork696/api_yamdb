@@ -1,11 +1,29 @@
-from rest_framework import filters
+from django_filters import rest_framework as filters
 
-class FilterSlug(filters.SearchFilter):
-    """
-    Фильтр для поиска по полю slug
-    """
+from reviews.models import Title
 
-    def get_search_fields(self, view, request):
-        if request.query_params.get('genre__slug'):
-            return ['slug']
-        return super().get_search_fields(view, request)
+
+class TitleFilter(filters.FilterSet):
+    """
+    Класс для фильтрации
+    """
+    name = filters.CharFilter(
+        field_name='name',
+        lookup_expr='icontains'
+    )
+    year = filters.NumberFilter(
+        field_name='year',
+        lookup_expr='icontains'
+    )
+    genre = filters.CharFilter(
+        field_name='genre__slug',
+        lookup_expr='icontains'
+    )
+    category = filters.CharFilter(
+        field_name='category__slug',
+        lookup_expr='icontains'
+    )
+
+    class Meta:
+        model = Title
+        fields = '__all__'

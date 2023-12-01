@@ -22,13 +22,12 @@ from api.serializers import (CategoriesSerializer, GenresSerializer,
                              CommentsSerializer, TitlesWriteSerializer)
 
 from .filters import TitleFilter
-from reviews.models import Categories, Genres, Title, Review, Comments
+from reviews.models import Categories, Genres, Title, Review
 
 from api_yamdb.settings import PROJECT_EMAIL
 from user.models import (CustomUser)
 
-from .permissions import (IsAuthorOrModeratorOrAdmin, IsAdminOrReadOnly,
-                          ReadOnly)
+from .permissions import (IsAuthorOrModeratorOrAdmin, IsAdminOrReadOnly)
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):
@@ -160,17 +159,13 @@ class UsersViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ReviewsViewSet(CreateListDeleteViewSet):
+class ReviewsViewSet(viewsets.ModelViewSet):
     """Класс для работы с Отзывами"""
     queryset = Review.objects.all()
     serializer_class = ReviewsSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthorOrModeratorOrAdmin,)
-
-    def get_permissions(self):
-        if self.action == 'retrieve':
-            return (ReadOnly(),)
-        return super().get_permissions()
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_title_id(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -184,11 +179,12 @@ class ReviewsViewSet(CreateListDeleteViewSet):
         return title.reviews.all()
 
 
-class CommentsViewSet(CreateListDeleteViewSet):
+class CommentsViewSet(viewsets.ModelViewSet):
     """Класс для работы с Комментариями"""
     serializer_class = CommentsSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get("review_id"))

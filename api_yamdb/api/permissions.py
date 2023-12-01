@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
 # для доступа к пользователям
@@ -39,3 +39,9 @@ class IsAdminOrReadOnly(permissions.BasePermission):
                 or request.user.is_superuser
             )
         )
+
+
+class ReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return request.method in permissions.SAFE_METHODS

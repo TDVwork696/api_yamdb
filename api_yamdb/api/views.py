@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.generic import CreateListDeleteViewSet
-from reviews.models import Categories, Genres, Title, Review, Comments
+from reviews.models import Categories, Genres, Title, Review
 from api.permissions import (IsAdminOrStaff)
 from api.serializers import (CategoriesSerializer, GenresSerializer,
                              TitlesSerializer, TokenSerializer,
@@ -22,7 +22,7 @@ from api.serializers import (CategoriesSerializer, GenresSerializer,
                              CommentsSerializer, TitlesWriteSerializer)
 
 from .filters import FilterSlug
-from reviews.models import Categories, Genres, Title, Review, Comments
+from reviews.models import Categories, Genres, Title, Review
 
 from api_yamdb.settings import PROJECT_EMAIL
 from user.models import (CustomUser)

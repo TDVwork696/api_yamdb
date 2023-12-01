@@ -21,8 +21,8 @@ from api.serializers import (CategoriesSerializer, GenresSerializer,
                              UsersSerializer, ReviewsSerializer,
                              CommentsSerializer, TitlesWriteSerializer)
 
-from .filters import FilterSlug
-from reviews.models import Categories, Genres, Title, Review
+from .filters import TitleFilter
+from reviews.models import Categories, Genres, Title, Review, Comments
 
 from api_yamdb.settings import PROJECT_EMAIL
 from user.models import (CustomUser)
@@ -63,7 +63,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
-    filter_class = FilterSlug
+    filterset_class = TitleFilter
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
@@ -72,7 +72,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
 
 class APIGetToken(APIView):
-    """Получение токена."""
+    """Класс для получение токена."""
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -91,7 +91,7 @@ class APIGetToken(APIView):
 
 
 class APISignup(APIView):
-    """Отправка кода на email пользователя."""
+    """Класс для отправки кода на email пользователя."""
     @staticmethod
     def send_email(data):
         email = EmailMessage(
@@ -134,7 +134,7 @@ class APISignup(APIView):
 
 
 class UsersViewSet(viewsets.ModelViewSet):
-    """Вью-сет пользователя."""
+    """Класс для работы с потльзователями."""
     queryset = CustomUser.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (IsAuthenticated, IsAdminOrStaff,)

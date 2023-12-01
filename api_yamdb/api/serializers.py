@@ -70,6 +70,7 @@ class TitlesSerializer(serializers.ModelSerializer):
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Токена"""
     username = serializers.CharField(
         required=True)
     confirmation_code = serializers.CharField(
@@ -84,6 +85,7 @@ class TokenSerializer(serializers.ModelSerializer):
 
 
 class UsersSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Пользователя"""
     class Meta:
         model = CustomUser
         fields = (
@@ -97,6 +99,7 @@ class UsersSerializer(serializers.ModelSerializer):
 
 
 class NotAdminSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели NotAdmin"""
     class Meta:
         model = CustomUser
         fields = (
@@ -111,6 +114,7 @@ class NotAdminSerializer(serializers.ModelSerializer):
 
 
 class SignUpSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели SignUp"""
     username = serializers.CharField(
         max_length=USER_NAMES_LENGTH,
         required=True,

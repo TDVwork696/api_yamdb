@@ -2,14 +2,12 @@ from datetime import datetime
 import re
 
 from django.shortcuts import get_object_or_404
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
+from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
 from reviews.models import Categories, Genres, Title, Review, Comments
 from user.models import CustomUser
-
-from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
 
 
 class CategoriesSerializer(serializers.ModelSerializer):

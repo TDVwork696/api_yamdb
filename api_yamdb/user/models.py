@@ -85,7 +85,6 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-# для моделей вроде не рекомендуют переопределять метод save, сделаем так
 @receiver(post_save, sender=CustomUser)
 def post_save(sender, instance, created, **kwargs):
     """Для создаваемых пользователей заполняем код подтверждения."""

@@ -2,14 +2,12 @@ from rest_framework import permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
-# для доступа к пользователям
 class IsAdminOrStaff(permissions.BasePermission):
     """"""
     def has_permission(self, request, view):
         return request.user.is_admin or request.user.is_staff
 
 
-# это будет основной пермишн
 class IsAuthorOrModeratorOrAdmin(IsAuthenticatedOrReadOnly):
     """Класс пермишен, позволяющий читать данные всем.
     Изменения доступны только автору, модератору или админу"""

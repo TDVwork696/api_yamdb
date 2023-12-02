@@ -9,25 +9,22 @@ from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.views import APIView
 
 from api.generic import CreateListDeleteViewSet
-from reviews.models import Categories, Genres, Title, Review
 from api.permissions import (IsAdminOrStaff)
 from api.serializers import (CategoriesSerializer, GenresSerializer,
                              TitlesSerializer, TokenSerializer,
                              NotAdminSerializer, SignUpSerializer,
                              UsersSerializer, ReviewsSerializer,
                              CommentsSerializer, TitlesWriteSerializer)
+from api_yamdb.settings import PROJECT_EMAIL
+from reviews.models import Categories, Genres, Title, Review
+from user.models import CustomUser
 
 from .filters import TitleFilter
-from reviews.models import Categories, Genres, Title, Review
-
-from api_yamdb.settings import PROJECT_EMAIL
-from user.models import (CustomUser)
-
-from .permissions import (IsAuthorOrModeratorOrAdmin, IsAdminOrReadOnly)
+from .permissions import IsAuthorOrModeratorOrAdmin, IsAdminOrReadOnly
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):

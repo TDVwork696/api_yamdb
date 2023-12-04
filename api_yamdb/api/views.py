@@ -24,7 +24,8 @@ from reviews.models import Categories, Genres, Title, Review
 from user.models import CustomUser
 
 from .filters import TitleFilter
-from .permissions import IsAuthorOrModeratorOrAdmin, IsAdminOrReadOnly
+from .permissions import (IsReadOnlyOrAuthorOrModeratorOrAdmin,
+                          IsAuthenticatedOrAdminOrReadOnly)
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):
@@ -33,7 +34,7 @@ class CategoriesViewSet(CreateListDeleteViewSet):
     serializer_class = CategoriesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrAdminOrReadOnly,)
     filterset_fields = ('name',)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -45,7 +46,7 @@ class GenresViewSet(CreateListDeleteViewSet):
     serializer_class = GenresSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrAdminOrReadOnly,)
     filterset_fields = ('slug',)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -57,7 +58,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
     serializer_class = TitlesSerializer
     pagination_class = LimitOffsetPagination
     filter_backends = (DjangoFilterBackend,)
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAuthenticatedOrAdminOrReadOnly,)
     http_method_names = ['get', 'post', 'patch', 'delete']
     filterset_class = TitleFilter
 
@@ -161,7 +162,7 @@ class ReviewsViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewsSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    permission_classes = (IsReadOnlyOrAuthorOrModeratorOrAdmin,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_title_id(self):
@@ -180,7 +181,7 @@ class CommentsViewSet(viewsets.ModelViewSet):
     """Класс для работы с Комментариями"""
     serializer_class = CommentsSerializer
     pagination_class = LimitOffsetPagination
-    permission_classes = (IsAuthorOrModeratorOrAdmin,)
+    permission_classes = (IsReadOnlyOrAuthorOrModeratorOrAdmin,)
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_queryset(self):

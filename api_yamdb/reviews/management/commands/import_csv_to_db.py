@@ -20,20 +20,19 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         for table in self.dict:
             try:
-                # Открываем файл таблицы
                 with open(f"../api_yamdb/static/data/{table}.csv") as file:
                     # Убираем первую строчку в которой название столбцов
                     # (id, name, slug и т.п.)
                     heading = next(file).rstrip().split(',')
-                    reader = csv.reader(file)  # Читаем файл
+                    reader = csv.reader(file)
                     model = self.dict[table]  # Получаем модель для таблицы
+                    spisok = []
                     for row in reader:
                         objs = {}
                         for i in range(len(heading)):
-                            ele = heading[i]  # Получаем название стобца
-                            objs[ele] = row[i]
-                        # Создаем объект модели
-                        model.objects.update_or_create(**objs)
+                            objs[heading[i]] = row[i]
+                        spisok.append(model(**objs))
+                    model.objects.bulk_create(spisok)
             except FileNotFoundError:
                 raise CommandError(f'File not found: {table}')
             except Exception as e:

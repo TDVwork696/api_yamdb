@@ -1,8 +1,5 @@
 from pathlib import Path
 
-USER_NAMES_LENGTH = 150
-USER_EMAIL_LENGTH = 254
-
 PROJECT_EMAIL = 'project@mail.ccc'
 
 BASE_DIR = Path(__file__).resolve().parent.parent

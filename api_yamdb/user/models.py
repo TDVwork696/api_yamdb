@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
 from user.validators import validate_username
-
+from .constants import Max_length
 
 ADMIN = 'admin'
 MODERATOR = 'moderator'
@@ -37,7 +37,7 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(
         'роль',
-        max_length=20,
+        max_length=Max_length.max_length_20.value,
         choices=ROLE_LIST,
         default=USER,
         blank=True
@@ -58,7 +58,7 @@ class CustomUser(AbstractUser):
     )
     confirmation_code = models.CharField(
         'код подтверждения',
-        max_length=255,
+        max_length=Max_length.max_length_255.value,
         null=True,
         blank=False,
         default='None'

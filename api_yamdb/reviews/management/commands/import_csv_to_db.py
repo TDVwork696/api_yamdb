@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def import_user(self):
         with open("../api_yamdb/static/data/users.csv", mode='r') as file:
-            heading = next(file).rstrip().split(',')
+            next(file).rstrip().split(',')
             reader = csv.reader(file)
             spisok = (CustomUser(
                 id=row[0],
@@ -25,7 +25,7 @@ class Command(BaseCommand):
 
     def import_genre(self):
         with open("../api_yamdb/static/data/genre.csv", mode='r') as file:
-            heading = next(file).rstrip().split(',')
+            next(file).rstrip().split(',')
             reader = csv.reader(file)
             spisok = (Genres(
                 id=row[0],
@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
     def import_category(self):
         with open("../api_yamdb/static/data/category.csv", mode='r') as file:
-            heading = next(file).rstrip().split(',')
+            next(file).rstrip().split(',')
             reader = csv.reader(file)
             spisok = (Categories(
                 id=row[0],
@@ -49,7 +49,7 @@ class Command(BaseCommand):
 
     def import_titles(self):
         with open("../api_yamdb/static/data/titles.csv", mode='r') as file:
-            heading = next(file).rstrip().split(',')
+            next(file).rstrip().split(',')
             reader = csv.reader(file)
             spisok = (Title(
                 id=row[0],
@@ -62,7 +62,7 @@ class Command(BaseCommand):
 
     def import_review(self):
         with open("../api_yamdb/static/data/review.csv", mode='r') as file:
-            heading = next(file).rstrip().split(',')
+            next(file).rstrip().split(',')
             reader = csv.reader(file)
             spisok = (Review(
                 id=row[0],
@@ -77,7 +77,7 @@ class Command(BaseCommand):
 
     def import_comments(self):
         with open("../api_yamdb/static/data/comments.csv") as file:
-            heading = next(file).rstrip().split(',')
+            next(file).rstrip().split(',')
             reader = csv.reader(file)
             spisok = (Comments(
                 id=row[0],

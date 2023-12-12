@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
 from user.validators import validate_username
 from .constants import Max_length
 
@@ -24,13 +23,13 @@ class CustomUser(AbstractUser):
 
     username = models.CharField(
         validators=(validate_username,),
-        max_length=USER_NAMES_LENGTH,
+        max_length=Max_length.max_length_150.value,
         unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
-        max_length=USER_EMAIL_LENGTH,
+        max_length=Max_length.max_length_254.value,
         unique=True,
         blank=False,
         null=False
@@ -48,12 +47,12 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(
         'имя',
-        max_length=USER_NAMES_LENGTH,
+        max_length=Max_length.max_length_150.value,
         blank=True
     )
     last_name = models.CharField(
         'фамилия',
-        max_length=USER_NAMES_LENGTH,
+        max_length=Max_length.max_length_150.value,
         blank=True
     )
     confirmation_code = models.CharField(

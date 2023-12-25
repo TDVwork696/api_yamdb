@@ -3,7 +3,6 @@ from datetime import datetime
 
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 
 from reviews.models import Categories, Genres, Title, Review, Comments
 from user.models import CustomUser
@@ -115,14 +114,12 @@ class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для модели SignUp"""
     username = serializers.CharField(
         max_length=USER_LENGTH.USER_NAMES_LENGTH.value,
-        required=True,
-        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+        required=True
     )
 
     email = serializers.EmailField(
         max_length=USER_LENGTH.USER_EMAIL_LENGTH.value,
-        required=True,
-        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+        required=True
     )
 
     def validate_username(self, username):

@@ -27,3 +27,4 @@ toml==0.10.2
 typing_extensions==4.8.0
 urllib3==1.26.18
 django-filter==23.4
+python-dotenv==1.0.0

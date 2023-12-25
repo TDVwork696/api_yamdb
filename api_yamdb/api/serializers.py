@@ -1,13 +1,12 @@
-from datetime import datetime
 import re
+from datetime import datetime
 
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 
-from api_yamdb.settings import USER_NAMES_LENGTH, USER_EMAIL_LENGTH
 from reviews.models import Categories, Genres, Title, Review, Comments
 from user.models import CustomUser
+from .constants import USER_LENGTH
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -114,15 +113,13 @@ class NotAdminSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для модели SignUp"""
     username = serializers.CharField(
-        max_length=USER_NAMES_LENGTH,
-        required=True,
-        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+        max_length=USER_LENGTH.USER_NAMES_LENGTH.value,
+        required=True
     )
 
     email = serializers.EmailField(
-        max_length=USER_EMAIL_LENGTH,
-        required=True,
-        validators=[UniqueValidator(queryset=CustomUser.objects.all())]
+        max_length=USER_LENGTH.USER_EMAIL_LENGTH.value,
+        required=True
     )
 
     def validate_username(self, username):

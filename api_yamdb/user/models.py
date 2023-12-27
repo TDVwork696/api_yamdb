@@ -5,7 +5,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from user.validators import validate_username
-from .constants import Max_length
+
+from .constants import MAX_LENGTH
 
 ADMIN = 'admin'
 MODERATOR = 'moderator'
@@ -23,20 +24,20 @@ class CustomUser(AbstractUser):
 
     username = models.CharField(
         validators=(validate_username,),
-        max_length=Max_length.max_length_150.value,
+        max_length=MAX_LENGTH.USERNAME.value,
         unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
-        max_length=Max_length.max_length_254.value,
+        max_length=MAX_LENGTH.EMAIL.value,
         unique=True,
         blank=False,
         null=False
     )
     role = models.CharField(
         'роль',
-        max_length=Max_length.max_length_20.value,
+        max_length=MAX_LENGTH.ROLE.value,
         choices=ROLE_LIST,
         default=USER,
         blank=True
@@ -47,17 +48,17 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(
         'имя',
-        max_length=Max_length.max_length_150.value,
+        max_length=MAX_LENGTH.FIRST_NAME.value,
         blank=True
     )
     last_name = models.CharField(
         'фамилия',
-        max_length=Max_length.max_length_150.value,
+        max_length=MAX_LENGTH.LAST_NAME.value,
         blank=True
     )
     confirmation_code = models.CharField(
         'код подтверждения',
-        max_length=Max_length.max_length_255.value,
+        max_length=MAX_LENGTH.CONFIRMATION_CODE.value,
         null=True,
         blank=False,
         default='None'

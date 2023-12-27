@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .constants import Score, Max_length
+from .constants import SCORE, MAX_LENGTH
 
 User = get_user_model()
 
@@ -10,11 +10,11 @@ User = get_user_model()
 class Categories(models.Model):
     """Модель Категорий"""
     name = models.CharField('Название катерогии',
-                            max_length=Max_length.max_length_256.value,
+                            max_length=MAX_LENGTH.NAME.value,
                             help_text='Введите название катерогии')
     slug = models.SlugField('Короткое название котеории',
                             unique=True,
-                            max_length=Max_length.max_length_50.value,
+                            max_length=MAX_LENGTH.SLUG.value,
                             help_text='Введите короткое название котеории')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='categories',
@@ -32,10 +32,10 @@ class Categories(models.Model):
 class Genres(models.Model):
     """Модель Жанров"""
     name = models.CharField('Название жанра',
-                            max_length=Max_length.max_length_256.value,
+                            max_length=MAX_LENGTH.NAME.value,
                             help_text='Введите название жанров')
     slug = models.SlugField('Короткое название жанров', unique=True,
-                            max_length=Max_length.max_length_50.value,
+                            max_length=MAX_LENGTH.SLUG.value,
                             help_text='Введите короткое название жанров')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='genres',
@@ -53,7 +53,7 @@ class Genres(models.Model):
 class Title(models.Model):
     """Модель Произведений"""
     name = models.CharField('Введите название произведения',
-                            max_length=Max_length.max_length_256.value,
+                            max_length=MAX_LENGTH.NAME.value,
                             help_text='Введите название произведения')
     year = models.IntegerField('Год выпуска произведения',
                                help_text='Введите год выпуска произведения')
@@ -102,9 +102,9 @@ class Review(models.Model):
         verbose_name='Произвдение к которому будет оставлен отзыв'
     )
     score = models.PositiveIntegerField(
-        validators=[MinValueValidator(Score.minvaluevalidator.value,
+        validators=[MinValueValidator(SCORE.MINVALUEVALIDATOR.value,
                                       message='Оценка должна быть > 0!'),
-                    MaxValueValidator(Score.maxvaluevalidator.value,
+                    MaxValueValidator(SCORE.MAXVALUEVALIDATOR.value,
                                       message='Оценка должна быть < 10!')],
         verbose_name='Оценка произведения',
         help_text='Введите оценку произведения'

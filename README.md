@@ -64,9 +64,8 @@ server/api/v1/titles/title_id/reviews/review_id/comments
 
 ## Использованные технологии:
 - Язык програмирования - Python 3.9.10
-- Фреймворк Django
+- Фреймворк DRF
 - СУБД - Sqlite3 
-- API 
 
 ## Об авторах:
 https://github.com/TDVwork696

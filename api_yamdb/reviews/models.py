@@ -26,6 +26,7 @@ class Categories(models.Model):
 
     class Meta:
         ordering = ("name",)
+        verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
 
@@ -47,6 +48,7 @@ class Genres(models.Model):
 
     class Meta:
         ordering = ("name",)
+        verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
 
 
@@ -83,6 +85,7 @@ class Title(models.Model):
 
     class Meta:
         ordering = ("name",)
+        verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
 
@@ -116,6 +119,7 @@ class Review(models.Model):
     class Meta:
         unique_together = ('title', 'author',)
         ordering = ("-pub_date",)
+        verbose_name = 'Текст отзыва'
         verbose_name_plural = 'Тексты отзывов'
 
 
@@ -140,4 +144,5 @@ class Comments(models.Model):
 
     class Meta:
         ordering = ("-pub_date",)
+        verbose_name = 'Текст комментария'
         verbose_name_plural = 'Тексты комментариев'

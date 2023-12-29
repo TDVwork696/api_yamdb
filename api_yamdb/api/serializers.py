@@ -122,7 +122,10 @@ class SignUpSerializer(serializers.ModelSerializer):
         required=True
     )
 
-    def validate_username(self, username):
+    def validate(self, data):
+        username = data['username']
+        email = data['email']
+
         if username == 'me':
             raise serializers.ValidationError(
                 "Нельзя назвать пользователя 'me'."
@@ -131,7 +134,20 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f'Имя пользователя содержит недопустимые символы {username}.'
             )
-        return username
+        users_set = CustomUser.objects.filter(username=username)
+        if len(users_set) != 0:
+            if users_set[0].email != email:
+                raise serializers.ValidationError(
+                    f'Имя пользователя {username} занято.'
+                )
+            else:
+                return data
+        users_set = CustomUser.objects.filter(email=email)
+        if len(users_set) != 0 and users_set[0].username != username:
+                raise serializers.ValidationError(
+                    f'Почта {email} уже используется.'
+                )
+        return data
 
     class Meta:
         model = CustomUser

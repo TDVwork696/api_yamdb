@@ -115,11 +115,6 @@ class APIAuth(viewsets.ModelViewSet):
         serializer = SignUpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-
-        # из сериалайзера убраны проверки уникальности username и email
-        # будем пытаться создать/получить без проверки уникальности
-        # мы или получим или создадим объект с комбинацией email+username
-        # иначе сработают констрейны модели, их ошибку и вернём
         try:
             user, created = CustomUser.objects.get_or_create(
                 username=data['username'],

@@ -5,100 +5,145 @@ from reviews.models import Categories, Comments, Genres, Review, Title
 from user.models import CustomUser
 
 
+class ImportUser:
+
+    def __init__(self):
+        self.file = open("../api_yamdb/static/data/users.csv", mode='r')
+
+    def import_data(self):
+        with self.file:
+            next(self.file).rstrip().split(',')
+            reader = csv.reader(self.file)
+            spisok = []
+            for row in reader:
+                id, username, email, role, bio, first_name, last_name = row
+                spisok.append(CustomUser(
+                    id=id,
+                    username=username,
+                    email=email,
+                    role=role,
+                    bio=bio,
+                    first_name=first_name,
+                    last_name=last_name))
+            CustomUser.objects.bulk_create(spisok)
+
+
+class ImportGenre:
+
+    def __init__(self):
+        self.file = open("../api_yamdb/static/data/genre.csv", mode='r')
+
+    def import_data(self):
+        with self.file:
+            next(self.file).rstrip().split(',')
+            reader = csv.reader(self.file)
+            spisok = []
+            for row in reader:
+                id, name, slug = row
+                spisok.append(Genres(id=id,
+                                     name=name,
+                                     slug=slug))
+            Genres.objects.bulk_create(spisok)
+
+
+class ImportCategory:
+
+    def __init__(self):
+        self.file = open("../api_yamdb/static/data/category.csv", mode='r')
+
+    def import_data(self):
+        with self.file:
+            next(self.file).rstrip().split(',')
+            reader = csv.reader(self.file)
+            spisok = []
+            for row in reader:
+                id, name, slug = row
+                spisok.append(Categories(id=id,
+                                         name=name,
+                                         slug=slug))
+            Categories.objects.bulk_create(spisok)
+
+
+class ImportTitle:
+
+    def __init__(self):
+        self.file = open("../api_yamdb/static/data/titles.csv", mode='r')
+
+    def import_data(self):
+        with self.file:
+            next(self.file).rstrip().split(',')
+            reader = csv.reader(self.file)
+            spisok = []
+            for row in reader:
+                id, name, year, category_id = row
+                spisok.append(Title(id=id,
+                                    name=name,
+                                    year=year,
+                                    category_id=category_id))
+            Title.objects.bulk_create(spisok)
+
+
+class ImportReview:
+
+    def __init__(self):
+        self.file = open("../api_yamdb/static/data/review.csv", mode='r')
+
+    def import_data(self):
+        with self.file:
+            next(self.file).rstrip().split(',')
+            reader = csv.reader(self.file)
+            spisok = []
+            for row in reader:
+                id, title_id, text, author_id, score, pub_date = row
+                spisok.append(Review(id=id,
+                                     title_id=title_id,
+                                     text=text,
+                                     author_id=author_id,
+                                     score=score,
+                                     pub_date=pub_date))
+            Review.objects.bulk_create(spisok)
+
+
+class ImportComments:
+
+    def __init__(self):
+        self.file = open("../api_yamdb/static/data/comments.csv", mode='r')
+
+    def import_data(self):
+        with self.file:
+            next(self.file).rstrip().split(',')
+            reader = csv.reader(self.file)
+            spisok = []
+            for row in reader:
+                id, review_id, text, author_id, pub_date = row
+                spisok.append(Comments(id=id,
+                                       review_id=review_id,
+                                       text=text,
+                                       author_id=author_id,
+                                       pub_date=pub_date))
+            Comments.objects.bulk_create(spisok)
+
+
+TABLE_FOR_IMPORT = {
+    'user': ImportUser,
+    'genre': ImportGenre,
+    'category': ImportCategory,
+    'title': ImportTitle,
+    'review': ImportReview,
+    'comments': ImportComments
+}
+
+
 class Command(BaseCommand):
     help = 'Import data from csv to db'
 
-    def import_user(self):
-        with open("../api_yamdb/static/data/users.csv", mode='r') as file:
-            next(file).rstrip().split(',')
-            reader = csv.reader(file)
-            spisok = (CustomUser(
-                id=row[0],
-                username=row[1],
-                email=row[2],
-                role=row[3],
-                bio=row[4],
-                first_name=row[5],
-                last_name=row[6]) for row in reader
-            )
-            CustomUser.objects.bulk_create(spisok)
-
-    def import_genre(self):
-        with open("../api_yamdb/static/data/genre.csv", mode='r') as file:
-            next(file).rstrip().split(',')
-            reader = csv.reader(file)
-            spisok = (Genres(
-                id=row[0],
-                name=row[1],
-                slug=row[2]
-            ) for row in reader
-            )
-            Genres.objects.bulk_create(spisok)
-
-    def import_category(self):
-        with open("../api_yamdb/static/data/category.csv", mode='r') as file:
-            next(file).rstrip().split(',')
-            reader = csv.reader(file)
-            spisok = (Categories(
-                id=row[0],
-                name=row[1],
-                slug=row[2]
-            ) for row in reader
-            )
-            Categories.objects.bulk_create(spisok)
-
-    def import_titles(self):
-        with open("../api_yamdb/static/data/titles.csv", mode='r') as file:
-            next(file).rstrip().split(',')
-            reader = csv.reader(file)
-            spisok = (Title(
-                id=row[0],
-                name=row[1],
-                year=row[2],
-                category_id=row[3]
-            ) for row in reader
-            )
-            Title.objects.bulk_create(spisok)
-
-    def import_review(self):
-        with open("../api_yamdb/static/data/review.csv", mode='r') as file:
-            next(file).rstrip().split(',')
-            reader = csv.reader(file)
-            spisok = (Review(
-                id=row[0],
-                title_id=row[1],
-                text=row[2],
-                author_id=row[3],
-                score=row[4],
-                pub_date=row[5]
-            ) for row in reader
-            )
-            Review.objects.bulk_create(spisok)
-
-    def import_comments(self):
-        with open("../api_yamdb/static/data/comments.csv") as file:
-            next(file).rstrip().split(',')
-            reader = csv.reader(file)
-            spisok = (Comments(
-                id=row[0],
-                review_id=row[1],
-                text=row[2],
-                author_id=row[3],
-                pub_date=row[4]
-            ) for row in reader
-            )
-            Comments.objects.bulk_create(spisok)
-
     def handle(self, *args, **options):
         try:
-            self.import_user()
-            self.import_genre()
-            self.import_category()
-            self.import_titles()
-            self.import_review()
-            self.import_comments()
+            for import_table in TABLE_FOR_IMPORT:
+                class_import = TABLE_FOR_IMPORT[import_table]()
+                class_import.import_data()
 
         except FileNotFoundError:
-            raise CommandError('File not found')
+            raise CommandError(f'File not found {import_table}')
         except Exception as e:
             raise CommandError(f'Error processing file: {str(e)}')

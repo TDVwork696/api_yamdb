@@ -3,7 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
@@ -24,6 +24,63 @@ from user.models import CustomUser
 from .filters import TitleFilter
 from .permissions import (IsReadOnlyOrAuthorOrModeratorOrAdmin,
                           IsAuthenticatedOrAdminOrReadOnly)
+
+
+def send_email(data):
+    """Отправка почты"""
+    email = EmailMessage(
+        subject=data['email_subject'],
+        body=data['email_body'],
+        from_email=PROJECT_EMAIL,
+        to=[data['to_email']]
+    )
+    email.send()
+
+
+@api_view(['POST'])
+def get_token(request):
+    """Получение токена."""
+    serializer = TokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+    user = get_object_or_404(CustomUser, username=data['username'])
+    if data.get('confirmation_code') == user.confirmation_code:
+        token = RefreshToken.for_user(user).access_token
+        return Response(
+            {'token': str(token)},
+            status=status.HTTP_201_CREATED
+        )
+    return Response(
+        {'confirmation_code': 'Неверный код!'},
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+
+@api_view(['POST'])
+def signup(request):
+    """Отправки кода на email пользователя."""
+    serializer = SignUpSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+    try:
+        user, created = CustomUser.objects.get_or_create(
+            username=data['username'],
+            email=data['email']
+        )
+    except Exception as e:
+        return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+    email_body = (
+        f'Добро пожаловать, {user.username}!'
+        f'Доступ к API по коду: {user.confirmation_code}'
+    )
+    data = {
+        'email_body': email_body,
+        'to_email': user.email,
+        'email_subject': 'Код доступа'
+    }
+    send_email(data)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CategoriesViewSet(CreateListDeleteViewSet):
@@ -64,76 +121,6 @@ class TitlesViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update']:
             return TitlesWriteSerializer
         return TitlesSerializer
-
-
-class APIAuth(viewsets.ModelViewSet):
-    """Класс для отправки кода на email пользователя
-     и получения токена."""
-    http_method_names = ['post']
-
-    @staticmethod
-    def send_email(data):
-        email = EmailMessage(
-            subject=data['email_subject'],
-            body=data['email_body'],
-            from_email=PROJECT_EMAIL,
-            to=[data['to_email']]
-        )
-        email.send()
-
-    @action(
-        methods=['POST'],
-        detail=False,
-        name='get_token',
-        url_path='token'
-    )
-    def get_token(self, request):
-        """Получение токена."""
-        serializer = TokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-        user = get_object_or_404(CustomUser, username=data['username'])
-        if data.get('confirmation_code') == user.confirmation_code:
-            token = RefreshToken.for_user(user).access_token
-            return Response(
-                {'token': str(token)},
-                status=status.HTTP_201_CREATED
-            )
-        return Response(
-            {'confirmation_code': 'Неверный код!'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    @action(
-        methods=['POST'],
-        detail=False,
-        name='signup',
-        url_path='signup'
-    )
-    def signup(self, request):
-        """Отправки кода на email пользователя."""
-        serializer = SignUpSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-        try:
-            user, created = CustomUser.objects.get_or_create(
-                username=data['username'],
-                email=data['email']
-            )
-        except Exception as e:
-            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-
-        email_body = (
-            f'Добро пожаловать, {user.username}!'
-            f'Доступ к API по коду: {user.confirmation_code}'
-        )
-        data = {
-            'email_body': email_body,
-            'to_email': user.email,
-            'email_subject': 'Код доступа'
-        }
-        self.send_email(data)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UsersViewSet(viewsets.ModelViewSet):

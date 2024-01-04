@@ -144,9 +144,9 @@ class SignUpSerializer(serializers.ModelSerializer):
                 return data
         users_set = CustomUser.objects.filter(email=email)
         if len(users_set) != 0 and users_set[0].username != username:
-                raise serializers.ValidationError(
-                    f'Почта {email} уже используется.'
-                )
+            raise serializers.ValidationError(
+                f'Почта {email} уже используется.'
+            )
         return data
 
     class Meta:

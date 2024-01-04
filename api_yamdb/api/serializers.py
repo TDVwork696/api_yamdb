@@ -5,8 +5,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Categories, Genres, Title, Review, Comments
+from user.constants import USER_MAX_LENGTH
 from user.models import CustomUser
-from .constants import USER_LENGTH
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -113,16 +113,19 @@ class NotAdminSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для модели SignUp"""
     username = serializers.CharField(
-        max_length=USER_LENGTH.USER_NAMES_LENGTH.value,
+        max_length=USER_MAX_LENGTH.USER_NAMES_LENGTH.value,
         required=True
     )
 
     email = serializers.EmailField(
-        max_length=USER_LENGTH.USER_EMAIL_LENGTH.value,
+        max_length=USER_MAX_LENGTH.USER_EMAIL_LENGTH.value,
         required=True
     )
 
-    def validate_username(self, username):
+    def validate(self, data):
+        username = data['username']
+        email = data['email']
+
         if username == 'me':
             raise serializers.ValidationError(
                 "Нельзя назвать пользователя 'me'."
@@ -131,7 +134,20 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f'Имя пользователя содержит недопустимые символы {username}.'
             )
-        return username
+        users_set = CustomUser.objects.filter(username=username)
+        if len(users_set) != 0:
+            if users_set[0].email != email:
+                raise serializers.ValidationError(
+                    f'Имя пользователя {username} занято.'
+                )
+            else:
+                return data
+        users_set = CustomUser.objects.filter(email=email)
+        if len(users_set) != 0 and users_set[0].username != username:
+            raise serializers.ValidationError(
+                f'Почта {email} уже используется.'
+            )
+        return data
 
     class Meta:
         model = CustomUser

@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -134,16 +135,21 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f'Имя пользователя содержит недопустимые символы {username}.'
             )
-        users_set = CustomUser.objects.filter(username=username)
-        if len(users_set) != 0:
-            if users_set[0].email != email:
+
+        # выполняем единственный запрос к БД
+        users_set = CustomUser.objects.filter(
+            Q(username=username) | Q(email=email)
+        )
+
+        if users_set.count() > 0:
+            exist_user = users_set.first()
+            if exist_user.username == username and exist_user.email == email:
+                return data
+            if exist_user.username == username:
                 raise serializers.ValidationError(
                     f'Имя пользователя {username} занято.'
                 )
-            else:
-                return data
-        users_set = CustomUser.objects.filter(email=email)
-        if len(users_set) != 0 and users_set[0].username != username:
+            if exist_user.email == email:
                 raise serializers.ValidationError(
                     f'Почта {email} уже используется.'
                 )

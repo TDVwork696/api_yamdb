@@ -39,6 +39,9 @@ review.csv - данные отзывов
 titles.csv - данные произведений
 users.csv - данные пользователей
 
+## В проекте используются переменные окружения, чтобы использовать их ознакомтесь с файлом:
+example.env
+
 ## Доступные endpiont:
 ### - Регистрация нового пользователя:
 server/api/v1/auth/signup
@@ -64,9 +67,8 @@ server/api/v1/titles/title_id/reviews/review_id/comments
 
 ## Использованные технологии:
 - Язык програмирования - Python 3.9.10
-- Фреймворк Django
+- Фреймворк DRF
 - СУБД - Sqlite3 
-- API 
 
 ## Об авторах:
 https://github.com/TDVwork696

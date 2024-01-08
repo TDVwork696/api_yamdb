@@ -6,8 +6,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Categories, Genres, Title, Review, Comments
+from user.constants import User
 from user.models import CustomUser
-from .constants import USER_LENGTH
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -114,12 +114,12 @@ class NotAdminSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для модели SignUp"""
     username = serializers.CharField(
-        max_length=USER_LENGTH.USER_NAMES_LENGTH.value,
+        max_length=User.USERNAME_LEN.value,
         required=True
     )
 
     email = serializers.EmailField(
-        max_length=USER_LENGTH.USER_EMAIL_LENGTH.value,
+        max_length=User.EMAIL_LEN.value,
         required=True
     )
 

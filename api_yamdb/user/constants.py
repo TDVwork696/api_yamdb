@@ -1,8 +1,10 @@
 from enum import Enum
 
 
-class Max_length(Enum):
-    max_length_20 = 20
-    max_length_150 = 150
-    max_length_254 = 254
-    max_length_255 = 255
+class User(Enum):
+    USERNAME_LEN: int = 150
+    EMAIL_LEN: int = 254
+    ROLE_LEN: int = 20
+    FIRST_NAME_LEN: int = 150
+    LAST_NAME_LEN: int = 150
+    CONFIRMATION_CODE_LEN: int = 255

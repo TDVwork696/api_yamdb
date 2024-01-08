@@ -1,4 +1,7 @@
+import contextlib
 import csv
+from os import path
+
 from django.core.management.base import BaseCommand, CommandError
 
 from reviews.models import Categories, Comments, Genres, Review, Title
@@ -9,12 +12,11 @@ PATH = "../api_yamdb/static/data/"
 
 class Import:
 
-    PATH = "../api_yamdb/static/data/"
     model = None
 
     def __init__(self, name_file):
-        self.file = open(self.PATH + name_file, mode='r')
-        self.list = []
+        self.file = path.join(PATH + name_file)
+        self.list_models_instances = []
 
     def create_list(self, row):
         raise NotImplementedError(
@@ -22,12 +24,20 @@ class Import:
         )
 
     def import_data(self):
-        with self.file:
-            next(self.file).rstrip().split(',')
-            reader = csv.reader(self.file)
+        with self.open_file() as file:
+            next(file).rstrip().split(',')
+            reader = csv.reader(file)
             for row in reader:
                 self.create_list(row)
-            self.model.objects.bulk_create(self.list)
+            self.model.objects.bulk_create(self.list_models_instances)
+
+    @contextlib.contextmanager
+    def open_file(self):
+        self.file = open(self.file, mode='r')
+        try:
+            yield self.file
+        finally:
+            self.file.close()
 
 
 class ImportUser(Import):
@@ -36,7 +46,7 @@ class ImportUser(Import):
 
     def create_list(self, row):
         id, username, email, role, bio, first_name, last_name = row
-        self.list.append(self.model(
+        self.list_models_instances.append(self.model(
             id=id,
             username=username,
             email=email,
@@ -53,7 +63,7 @@ class ImportGenre(Import):
 
     def create_list(self, row):
         id, name, slug = row
-        self.list.append(self.model(
+        self.list_models_instances.append(self.model(
             id=id,
             name=name,
             slug=slug)
@@ -66,7 +76,7 @@ class ImportCategory(Import):
 
     def create_list(self, row):
         id, name, slug = row
-        self.list.append(self.model(
+        self.list_models_instances.append(self.model(
             id=id,
             name=name,
             slug=slug)
@@ -79,7 +89,7 @@ class ImportTitle(Import):
 
     def create_list(self, row):
         id, name, year, category_id = row
-        self.list.append(self.model(
+        self.list_models_instances.append(self.model(
             id=id,
             name=name,
             year=year,
@@ -93,7 +103,7 @@ class ImportReview(Import):
 
     def create_list(self, row):
         id, title_id, text, author_id, score, pub_date = row
-        self.list.append(self.model(
+        self.list_models_instances.append(self.model(
             id=id,
             title_id=title_id,
             text=text,
@@ -109,7 +119,7 @@ class ImportComments(Import):
 
     def create_list(self, row):
         id, review_id, text, author_id, pub_date = row
-        self.list.append(self.model(
+        self.list_models_instances.append(self.model(
             id=id,
             review_id=review_id,
             text=text,

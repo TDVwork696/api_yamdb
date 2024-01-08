@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 from user.validators import validate_username
 
-from .constants import MAX_LENGTH
+from .constants import User
 
 ADMIN = 'admin'
 MODERATOR = 'moderator'
@@ -24,20 +24,20 @@ class CustomUser(AbstractUser):
 
     username = models.CharField(
         validators=(validate_username,),
-        max_length=MAX_LENGTH.USERNAME.value,
+        max_length=User.USERNAME_LEN.value,
         unique=True,
         blank=False,
         null=False
     )
     email = models.EmailField(
-        max_length=MAX_LENGTH.EMAIL.value,
+        max_length=User.EMAIL_LEN.value,
         unique=True,
         blank=False,
         null=False
     )
     role = models.CharField(
         'роль',
-        max_length=MAX_LENGTH.ROLE.value,
+        max_length=User.ROLE_LEN.value,
         choices=ROLE_LIST,
         default=USER,
         blank=True
@@ -48,17 +48,17 @@ class CustomUser(AbstractUser):
     )
     first_name = models.CharField(
         'имя',
-        max_length=MAX_LENGTH.FIRST_NAME.value,
+        max_length=User.FIRST_NAME_LEN.value,
         blank=True
     )
     last_name = models.CharField(
         'фамилия',
-        max_length=MAX_LENGTH.LAST_NAME.value,
+        max_length=User.LAST_NAME_LEN.value,
         blank=True
     )
     confirmation_code = models.CharField(
         'код подтверждения',
-        max_length=MAX_LENGTH.CONFIRMATION_CODE.value,
+        max_length=User.CONFIRMATION_CODE_LEN.value,
         null=True,
         blank=False,
         default='None'

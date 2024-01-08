@@ -1,11 +1,12 @@
 import re
 from datetime import datetime
 
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Categories, Genres, Title, Review, Comments
-from user.constants import USER_MAX_LENGTH
+from user.constants import User
 from user.models import CustomUser
 
 
@@ -113,12 +114,12 @@ class NotAdminSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     """Сериализатор для модели SignUp"""
     username = serializers.CharField(
-        max_length=USER_MAX_LENGTH.USER_NAMES_LENGTH.value,
+        max_length=User.USERNAME_LEN.value,
         required=True
     )
 
     email = serializers.EmailField(
-        max_length=USER_MAX_LENGTH.USER_EMAIL_LENGTH.value,
+        max_length=User.EMAIL_LEN.value,
         required=True
     )
 
@@ -134,19 +135,24 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f'Имя пользователя содержит недопустимые символы {username}.'
             )
-        users_set = CustomUser.objects.filter(username=username)
-        if len(users_set) != 0:
-            if users_set[0].email != email:
+
+        # выполняем единственный запрос к БД
+        users_set = CustomUser.objects.filter(
+            Q(username=username) | Q(email=email)
+        )
+
+        if users_set.count() > 0:
+            exist_user = users_set.first()
+            if exist_user.username == username and exist_user.email == email:
+                return data
+            if exist_user.username == username:
                 raise serializers.ValidationError(
                     f'Имя пользователя {username} занято.'
                 )
-            else:
-                return data
-        users_set = CustomUser.objects.filter(email=email)
-        if len(users_set) != 0 and users_set[0].username != username:
-            raise serializers.ValidationError(
-                f'Почта {email} уже используется.'
-            )
+            if exist_user.email == email:
+                raise serializers.ValidationError(
+                    f'Почта {email} уже используется.'
+                )
         return data
 
     class Meta:

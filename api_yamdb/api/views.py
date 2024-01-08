@@ -62,13 +62,11 @@ def signup(request):
     serializer = SignUpSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     data = serializer.validated_data
-    try:
-        user, created = CustomUser.objects.get_or_create(
-            username=data['username'],
-            email=data['email']
-        )
-    except Exception as e:
-        return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+    user, created = CustomUser.objects.get_or_create(
+        username=data['username'],
+        email=data['email']
+    )
 
     email_body = (
         f'Добро пожаловать, {user.username}!'
